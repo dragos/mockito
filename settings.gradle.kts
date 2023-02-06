@@ -1,5 +1,22 @@
 plugins {
-  id("com.gradle.enterprise").version("3.3.4")
+  id("com.gradle.enterprise").version("3.12.3")
+  id("com.gradle.common-custom-user-data-gradle-plugin").version("1.8.2")
+}
+
+gradleEnterprise {
+    server = "https://ec2-3-231-27-216.compute-1.amazonaws.com"
+    allowUntrustedServer = true
+    buildScan {
+        publishAlways()
+        capture {                      // for plugin >= 3.7
+            isTaskInputFiles = true
+        }
+        isUploadInBackground = System.getenv("CI") == null
+    }
+    buildCache {
+        local { isEnabled = true }
+        remote(gradleEnterprise.buildCache) { isEnabled = false }
+    }
 }
 
 include("subclass",
