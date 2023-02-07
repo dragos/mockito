@@ -29,11 +29,28 @@ dependencies {
     testRuntimeBundles tasks.otherBundle.outputs.files
 }
 
+class RuntimeBundlesProvider implements CommandLineArgumentProvider {
+    @InputFiles
+    @PathSensitive(PathSensitivity.RELATIVE)
+    FileTree files
+
+    @Override
+    Iterable<String> asArguments() {
+        println("in: ${files}")
+        String[] absolutePaths = files.stream().map {it.absolutePath}.toArray()
+        ["-DtestRuntimeBundles=${CollectionUtils.join(File.pathSeparator, absolutePaths)}".toString()]
+    }
+}
+
 test {
+    jvmArgumentProviders.add(
+        new RuntimeBundlesProvider(files: configurations.testRuntimeBundles.asFileTree)
+    )
+//    println(allJvmArgs)
     dependsOn configurations.testRuntimeBundles
-    inputs.files(sourceSets.testBundle.allSource)
-    inputs.files(sourceSets.otherBundle.allSource)
-    systemProperty 'testRuntimeBundles', configurations.testRuntimeBundles.asPath
+    inputs.files(sourceSets.testBundle.allSource).withPathSensitivity(PathSensitivity.RELATIVE)
+    inputs.files(sourceSets.otherBundle.allSource).withPathSensitivity(PathSensitivity.RELATIVE)
+//    systemProperty 'testRuntimeBundles', configurations.testRuntimeBundles.asPath
     useJUnit()
 }
 
