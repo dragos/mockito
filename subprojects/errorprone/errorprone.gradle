@@ -14,7 +14,7 @@ dependencies {
     testImplementation libraries.errorproneTestApi
 }
 
-test {
+tasks.withType(Test).configureEach {
     inputs.files(configurations.errorproneJavac).withNormalizer(ClasspathNormalizer)
     jvmArgs += "-Xbootclasspath/a:${configurations.errorproneJavac.asPath}"
     jvmArgs += "--add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED"
